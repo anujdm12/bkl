@@ -3,6 +3,12 @@
   countdownHeader: document.getElementById('cd-head'),
   countdownMsg: document.getElementById('cd-msg'),
   countdownMicrocopy: document.getElementById('countdown-microcopy'),
+  visitStreakBadge: document.getElementById('visit-streak-badge'),
+  nextRefreshBadge: document.getElementById('next-refresh-badge'),
+  dailyTeaseTitle: document.getElementById('daily-tease-title'),
+  dailyTeaseCopy: document.getElementById('daily-tease-copy'),
+  returnHookTitle: document.getElementById('return-hook-title'),
+  returnHookCopy: document.getElementById('return-hook-copy'),
   countdownDays: document.getElementById('cd-d'),
   countdownHours: document.getElementById('cd-h'),
   countdownMinutes: document.getElementById('cd-m'),
@@ -26,8 +32,36 @@ let audioRetryTimer = null;
 let birthdaySequenceStarted = false;
 let countdownStartTarget = null;
 let previousSecondValue = null;
+let dailyVisitState = null;
 
 const birthdayAudio = document.getElementById('birthday-audio');
+const DAILY_VISIT_KEY = 'kruthiii-countdown-visit-state';
+const DAILY_TEASES = [
+  {
+    title: 'A soft memory is hiding inside this surprise',
+    copy: 'Not every gift is loud. Some hit hardest because they feel personal, warm, and unexpectedly close to the heart.',
+  },
+  {
+    title: 'Tomorrow’s page should feel a little more dangerous',
+    copy: 'The closer we get, the less calm this countdown wants to stay. It is learning how to make an entrance.',
+  },
+  {
+    title: 'One part of the surprise is pure elder-sis energy',
+    copy: 'It is equal parts comfort, chaos, sweetness, and that impossible mix of feeling safe and roasted at the same time.',
+  },
+  {
+    title: 'The ending is not the only thing waiting for her',
+    copy: 'There is a build-up happening here on purpose. You are meant to feel curiosity doing small circles in your head.',
+  },
+  {
+    title: 'This page keeps a tiny secret for repeat visitors',
+    copy: 'The more often you come back, the more it feels like the surprise is watching the countdown with you.',
+  },
+  {
+    title: 'The final reveal is sweeter if you let the suspense cook',
+    copy: 'That is why today only gives you a taste. Waiting is part of the gift this time.',
+  },
+];
 
 function makeConfetti() {
   const confettiRoot = document.getElementById('conf');
@@ -61,6 +95,99 @@ function getCountdownStartTarget(target) {
   const start = new Date(target);
   start.setDate(start.getDate() - 7);
   return start.getTime();
+}
+
+function getDayStamp(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getPreviousDayStamp() {
+  const previous = new Date();
+  previous.setDate(previous.getDate() - 1);
+  return getDayStamp(previous);
+}
+
+function loadDailyVisitState() {
+  const today = getDayStamp();
+  const yesterday = getPreviousDayStamp();
+  const fallback = { lastVisit: today, streak: 1, firstVisitToday: true };
+
+  try {
+    const raw = window.localStorage.getItem(DAILY_VISIT_KEY);
+    if (!raw) {
+      window.localStorage.setItem(DAILY_VISIT_KEY, JSON.stringify(fallback));
+      return fallback;
+    }
+
+    const parsed = JSON.parse(raw);
+    let streak = Number(parsed.streak) || 1;
+    let firstVisitToday = false;
+
+    if (parsed.lastVisit === today) {
+      return { lastVisit: today, streak, firstVisitToday };
+    }
+
+    firstVisitToday = true;
+    streak = parsed.lastVisit === yesterday ? streak + 1 : 1;
+    const nextState = { lastVisit: today, streak, firstVisitToday };
+    window.localStorage.setItem(DAILY_VISIT_KEY, JSON.stringify(nextState));
+    return nextState;
+  } catch {
+    return fallback;
+  }
+}
+
+function formatTimeUntilTomorrow() {
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setHours(24, 0, 0, 0);
+  const difference = Math.max(tomorrow - now, 0);
+  const hours = Math.floor(difference / 3600000);
+  const minutes = Math.floor((difference % 3600000) / 60000);
+  return `${hours}h ${String(minutes).padStart(2, '0')}m`;
+}
+
+function updateDailyRitual(difference, days, hours, minutes) {
+  if (!dailyVisitState) {
+    dailyVisitState = loadDailyVisitState();
+  }
+
+  const teaseIndex = Math.abs(days + hours + new Date().getDate()) % DAILY_TEASES.length;
+  const tease = DAILY_TEASES[teaseIndex];
+  const visitText = dailyVisitState.streak === 1 ? '1 day' : `${dailyVisitState.streak} days`;
+
+  if (dom.visitStreakBadge) {
+    dom.visitStreakBadge.textContent = `Check-in streak: ${visitText}`;
+  }
+
+  if (dom.nextRefreshBadge) {
+    dom.nextRefreshBadge.textContent = `New tease unlocks in ${formatTimeUntilTomorrow()}`;
+  }
+
+  if (dom.dailyTeaseTitle) dom.dailyTeaseTitle.textContent = tease.title;
+  if (dom.dailyTeaseCopy) dom.dailyTeaseCopy.textContent = tease.copy;
+
+  let returnTitle = 'The surprise remembers your visits';
+  let returnCopy = dailyVisitState.firstVisitToday
+    ? 'Nice. Today counted. Come back tomorrow and this page will greet you with a fresh tease and a hotter countdown mood.'
+    : 'You already checked in today. Come back after midnight for a fresh tease and another little hit of suspense.';
+
+  if (difference / 3600000 <= 24) {
+    returnTitle = 'Now the waiting becomes deliciously unbearable';
+    returnCopy = 'From here on, checking this page feels dangerous in the best way. The closer it gets, the more impossible it is not to peek again.';
+  } else if (difference / 86400000 <= 3) {
+    returnTitle = 'This is the phase where people start checking twice';
+    returnCopy = 'You are close enough now that every revisit feels justified. The page knows it, and it is leaning into it.';
+  } else if (dailyVisitState.streak >= 3) {
+    returnTitle = 'The page officially thinks you are invested';
+    returnCopy = `A ${visitText} streak means the suspense is working. Keep the streak alive and let the anticipation do its thing.`;
+  }
+
+  if (dom.returnHookTitle) dom.returnHookTitle.textContent = returnTitle;
+  if (dom.returnHookCopy) dom.returnHookCopy.textContent = returnCopy;
 }
 
 function pulseCountdownUnit(element) {
@@ -144,6 +271,7 @@ function updateCountdownExperience(difference, days, hours, minutes, seconds) {
     pulseCountdownUnit(dom.countdownSeconds?.parentElement);
   }
 
+  updateDailyRitual(difference, days, hours, minutes);
   previousSecondValue = seconds;
 }
 
@@ -272,6 +400,12 @@ function displayBirthdayReady() {
   if (dom.statusChipSecondary) dom.statusChipSecondary.textContent = 'Tap to open the surprise 🎁';
   if (dom.countdownProgressFill) dom.countdownProgressFill.style.width = '100%';
   if (dom.countdownProgressValue) dom.countdownProgressValue.textContent = '100%';
+  if (dom.visitStreakBadge) dom.visitStreakBadge.textContent = 'Check-in streak completed';
+  if (dom.nextRefreshBadge) dom.nextRefreshBadge.textContent = 'No more waiting needed';
+  if (dom.dailyTeaseTitle) dom.dailyTeaseTitle.textContent = 'The waiting part is over';
+  if (dom.dailyTeaseCopy) dom.dailyTeaseCopy.textContent = 'No more tiny clues. The real birthday surprise is ready for you now.';
+  if (dom.returnHookTitle) dom.returnHookTitle.textContent = 'This was worth coming back for';
+  if (dom.returnHookCopy) dom.returnHookCopy.textContent = 'All that suspense finally pays off here. Open it and let the birthday chaos begin.';
   dom.musicWrap.innerHTML = '';
 
   const revealButton = document.createElement('button');
@@ -388,6 +522,7 @@ function showCountdown() {
 }
 
 function initializeApp() {
+  dailyVisitState = loadDailyVisitState();
   makeConfetti();
   prepareBirthdayAudio();
   attemptPlayBirthdayAudio();
