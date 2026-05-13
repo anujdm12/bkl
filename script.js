@@ -8,11 +8,17 @@
   countdownSeconds: document.getElementById('cd-s'),
   musicWrap: document.getElementById('music-wrap'),
   birthdayMusicWrap: document.getElementById('bday-music-wrap'),
+  countdownBox: document.querySelector('.countdown-box'),
+  countdownHype: document.getElementById('countdown-hype'),
+  hypeKicker: document.getElementById('hype-kicker'),
+  hypeNumber: document.getElementById('hype-number'),
+  hypeBurst: document.getElementById('hype-burst'),
 };
 
 let countdownInterval = null;
 let audioAutoplayFailed = false;
 let audioRetryTimer = null;
+let birthdaySequenceStarted = false;
 
 const birthdayAudio = document.getElementById('birthday-audio');
 
@@ -51,7 +57,7 @@ function updateCountdown() {
 
   if (difference <= 0) {
     clearInterval(countdownInterval);
-    displayBirthdayReady();
+    runBirthdayHypeSequence();
     return;
   }
 
@@ -68,6 +74,10 @@ function updateCountdown() {
 }
 
 function getCountdownMood(seconds) {
+  if (seconds <= 5) {
+    return 'Hold on... this is about to explode into birthday mode 🎆';
+  }
+
   const phrases = [
     'Hang tight... the birthday magic is almost here 🌟',
     'She’s gonna LOVE this 😏',
@@ -76,6 +86,78 @@ function getCountdownMood(seconds) {
     'Almost time to embarrass her with all this love 😂',
   ];
   return phrases[Math.floor(seconds / 12) % phrases.length];
+}
+
+function wait(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+function triggerMiniConfettiBurst() {
+  const confettiRoot = document.getElementById('conf');
+  if (!confettiRoot) return;
+
+  const palette = ['#ff5fa0', '#ffcc44', '#00d9ff', '#a78bfa', '#34d399', '#ffffff'];
+  for (let index = 0; index < 26; index += 1) {
+    const piece = document.createElement('div');
+    piece.className = 'cp';
+    const size = Math.random() * 10 + 6;
+    const left = 35 + (Math.random() * 30);
+    piece.style.cssText = `width:${size}px;height:${size}px;left:${left}%;top:22%;background:${palette[Math.floor(Math.random() * palette.length)]};border-radius:${Math.random() > 0.5 ? '50%' : '3px'};animation-duration:${Math.random() * 1.8 + 1.8}s;animation-delay:0s;opacity:1`;
+    confettiRoot.appendChild(piece);
+    window.setTimeout(() => piece.remove(), 2600);
+  }
+}
+
+async function runBirthdayHypeSequence() {
+  if (birthdaySequenceStarted) return;
+  birthdaySequenceStarted = true;
+
+  dom.countdownDays.textContent = '00';
+  dom.countdownHours.textContent = '00';
+  dom.countdownMinutes.textContent = '00';
+  dom.countdownSeconds.textContent = '00';
+  dom.countdownHeader.textContent = 'It is happening... ✨';
+  dom.countdownMsg.textContent = 'Get ready for the birthday blast-off 🚀';
+  dom.musicWrap.innerHTML = '';
+
+  if (dom.countdownHype) {
+    dom.countdownHype.classList.add('active');
+    dom.countdownHype.setAttribute('aria-hidden', 'false');
+  }
+
+  const sequence = [
+    { number: '3', kicker: 'Everybody ready?', delay: 750 },
+    { number: '2', kicker: 'Turn the hype all the way up', delay: 750 },
+    { number: '1', kicker: 'Kruthiii mode incoming...', delay: 800 },
+  ];
+
+  for (const step of sequence) {
+    if (dom.hypeKicker) dom.hypeKicker.textContent = step.kicker;
+    if (dom.hypeNumber) {
+      dom.hypeNumber.textContent = step.number;
+      dom.hypeNumber.style.animation = 'none';
+      void dom.hypeNumber.offsetWidth;
+      dom.hypeNumber.style.animation = '';
+    }
+    await wait(step.delay);
+  }
+
+  if (dom.hypeKicker) dom.hypeKicker.textContent = 'And now... explode the party!';
+  if (dom.hypeNumber) dom.hypeNumber.textContent = '0';
+  if (dom.countdownHype) dom.countdownHype.classList.add('burst');
+  if (dom.countdownBox) dom.countdownBox.classList.add('party-mode');
+  triggerMiniConfettiBurst();
+  await wait(1150);
+
+  if (dom.countdownHype) {
+    dom.countdownHype.classList.remove('active', 'burst');
+    dom.countdownHype.setAttribute('aria-hidden', 'true');
+  }
+  if (dom.countdownBox) dom.countdownBox.classList.remove('party-mode');
+
+  displayBirthdayReady();
 }
 
 function displayBirthdayReady() {

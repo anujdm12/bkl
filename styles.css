@@ -505,6 +505,149 @@ button {
   margin-top: 0.7rem;
 }
 
+.countdown-hype {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at center, rgba(0, 217, 255, 0.24), transparent 40%),
+    linear-gradient(180deg, rgba(10, 10, 30, 0.2), rgba(10, 10, 30, 0.88));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 3;
+}
+
+.countdown-hype.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.hype-core {
+  width: min(100%, 420px);
+  text-align: center;
+}
+
+.hype-kicker {
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #ffd166;
+  margin-bottom: 0.75rem;
+}
+
+.hype-number {
+  font-family: 'Pacifico', cursive;
+  font-size: clamp(4.8rem, 18vw, 8rem);
+  line-height: 0.95;
+  color: #fff;
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.6), 0 0 40px rgba(0, 217, 255, 0.7);
+  transform: scale(0.7);
+  opacity: 0;
+}
+
+.countdown-hype.active .hype-number {
+  animation: hype-countdown-pop 0.65s ease forwards;
+}
+
+.hype-burst {
+  margin-top: 0.9rem;
+  font-family: 'Pacifico', cursive;
+  font-size: clamp(1.7rem, 7vw, 2.8rem);
+  letter-spacing: 1px;
+  color: #fff7bd;
+  text-shadow: 0 0 15px rgba(255, 209, 102, 0.7), 0 0 28px rgba(255, 0, 110, 0.5);
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.countdown-hype.burst .hype-burst {
+  animation: hype-burst-pop 0.85s ease forwards;
+}
+
+.countdown-box.party-mode {
+  animation: party-box-shake 0.8s ease;
+}
+
+.countdown-box.party-mode .cd-unit {
+  animation: party-unit-jump 0.6s ease;
+}
+
+.countdown-box.party-mode .cd-title {
+  animation: hype-title-flash 0.9s ease;
+}
+
+@keyframes hype-countdown-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.45);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes hype-burst-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.14);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes party-box-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes party-unit-jump {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.05);
+  }
+}
+
+@keyframes hype-title-flash {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.4);
+  }
+}
+
 .music-btn {
   display: inline-flex;
   align-items: center;
@@ -751,6 +894,15 @@ button {
   .cd-msg {
     font-size: 0.95rem;
     line-height: 1.6;
+  }
+
+  .countdown-hype {
+    padding: 1rem;
+  }
+
+  .hype-kicker {
+    font-size: 0.74rem;
+    letter-spacing: 1.5px;
   }
 
   .music-btn,
