@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kruthiii Birthday Countdown Surprise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="confetti-bg" id="conf"></div>
+  <audio id="birthday-audio" src="Happy Birthday (Piano Version).mp3" loop preload="auto" autoplay></audio>
+  <div class="wrap">
+    <div class="screen active" id="s-countdown">
+      <div class="countdown-box">
+        <div class="cd-label">⏳ counting down to</div>
+        <div class="cd-title" id="cd-head">Kruthiii turns 19! 🎂</div>
+        <div class="cd-grid">
+          <div class="cd-unit"><div class="cd-num" id="cd-d">00</div><div class="cd-word">Days</div></div>
+          <div class="cd-unit"><div class="cd-num" id="cd-h">00</div><div class="cd-word">Hours</div></div>
+          <div class="cd-unit"><div class="cd-num" id="cd-m">00</div><div class="cd-word">Mins</div></div>
+          <div class="cd-unit"><div class="cd-num" id="cd-s">00</div><div class="cd-word">Secs</div></div>
+        </div>
+        <div class="cd-msg" id="cd-msg">Hang tight... the birthday magic is almost here 🌟</div>
+        <div id="music-wrap"></div>
+      </div>
+    </div>
+
+    <div class="screen" id="s-surprise">
+      <div id="bday-music-wrap"></div>
+      <div class="surprise-box">
+        <div class="float-icon" style="font-size:3rem">🎉</div>
+        <div class="surprise-title">Happy Birthday,<br>Kruthiii! 🎂</div>
+        <div class="age-badge">Hello, 19! 🥳</div>
+        <div style="font-size:1.8rem;letter-spacing:6px;margin:.5rem 0">🎈 🌸 💖 🌟</div>
+        <div class="surprise-msg">
+          <p>
+            "She's been there through <span class="hl">everything</span> —
+            through the storms, the laughs, the 2am conversations, the moments I didn't even have words for.
+            Though she's my <span class="hl">elder sis</span>, she'll always remain a
+            <span class="hl">kid</span> to me — and honestly? That's my favourite thing about her.
+            Not blood. But <span class="hl">family</span>. Forever and always. 💕"
+          </p>
+        </div>
+        <div class="reasons-grid">
+          <div class="reason-pill"><span class="ri">🤝</span>Always there for me</div>
+          <div class="reason-pill"><span class="ri">😂</span>Makes me laugh like crazy</div>
+          <div class="reason-pill"><span class="ri">👑</span>Elder sis energy</div>
+          <div class="reason-pill"><span class="ri">🧒</span>Forever a kid at heart</div>
+          <div class="reason-pill"><span class="ri">💪</span>My strength always</div>
+          <div class="reason-pill"><span class="ri">✨</span>Simply irreplaceable</div>
+        </div>
+        <div style="background:#fff3cd;border:2px dashed #ffcc44;border-radius:18px;padding:1.2rem;margin:.8rem 0">
+          <div style="font-size:3rem;animation:floatY 2s ease-in-out infinite">🎂</div>
+          <div style="font-family:'Pacifico',cursive;font-size:1.1rem;color:#856404">Make a wish, sis! 🕯️</div>
+        </div>
+        <div class="footer-love">Love you to the moon & back <span class="pulse">💗</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
