@@ -444,6 +444,36 @@ button {
   50% { text-shadow: 0 0 40px rgba(0, 217, 255, 0.8), 0 0 80px rgba(0, 217, 255, 0.5); }
 }
 
+.countdown-status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+  margin: -0.2rem 0 1.2rem;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 217, 255, 0.35);
+  background: rgba(0, 217, 255, 0.1);
+  color: #d8f7ff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 16px rgba(0, 217, 255, 0.12);
+}
+
+.status-chip.alt {
+  background: rgba(255, 0, 110, 0.1);
+  border-color: rgba(255, 0, 110, 0.28);
+  color: #ffd7ea;
+}
+
 .cd-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -480,6 +510,10 @@ button {
   transform: translateY(-2px);
 }
 
+.cd-unit.pulse {
+  animation: unit-pulse 0.7s ease;
+}
+
 .cd-num {
   font-family: 'Pacifico', cursive;
   font-size: clamp(2rem, 8vw, 2.55rem);
@@ -503,6 +537,89 @@ button {
   color: var(--muted);
   line-height: 1.7;
   margin-top: 0.7rem;
+}
+
+.countdown-microcopy {
+  margin-top: 0.55rem;
+  color: #c8caea;
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.countdown-progress-shell {
+  margin-top: 0.2rem;
+}
+
+.countdown-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.55rem;
+  color: #cfd6ff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.countdown-progress-track {
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.countdown-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #00d9ff 0%, #60a5fa 35%, #a78bfa 70%, #ff4d6d 100%);
+  box-shadow: 0 0 15px rgba(0, 217, 255, 0.35);
+  transition: width 0.8s ease, box-shadow 0.5s ease;
+}
+
+.countdown-box.stage-soon {
+  border-color: rgba(255, 209, 102, 0.45);
+  box-shadow: 0 25px 50px rgba(255, 209, 102, 0.08), inset 0 1px 2px rgba(255, 209, 102, 0.15);
+}
+
+.countdown-box.stage-soon .cd-title,
+.countdown-box.stage-final .cd-title {
+  color: #fff3b0;
+  text-shadow: 0 0 22px rgba(255, 209, 102, 0.45), 0 0 56px rgba(255, 0, 110, 0.2);
+}
+
+.countdown-box.stage-soon .countdown-progress-fill {
+  box-shadow: 0 0 18px rgba(255, 209, 102, 0.45);
+}
+
+.countdown-box.stage-final {
+  border-color: rgba(255, 95, 160, 0.55);
+  box-shadow: 0 25px 55px rgba(255, 95, 160, 0.15), inset 0 1px 2px rgba(255, 95, 160, 0.15);
+}
+
+.countdown-box.stage-final .cd-unit {
+  border-color: rgba(255, 95, 160, 0.45);
+  background: rgba(255, 95, 160, 0.08);
+}
+
+.countdown-box.stage-final .countdown-progress-fill {
+  box-shadow: 0 0 20px rgba(255, 95, 160, 0.55);
+}
+
+@keyframes unit-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .countdown-hype {
@@ -896,6 +1013,25 @@ button {
     line-height: 1.6;
   }
 
+  .countdown-status {
+    gap: 0.55rem;
+    margin-bottom: 1rem;
+  }
+
+  .status-chip {
+    width: 100%;
+    font-size: 0.78rem;
+    min-height: 36px;
+  }
+
+  .countdown-progress-head {
+    font-size: 0.74rem;
+  }
+
+  .countdown-microcopy {
+    font-size: 0.88rem;
+  }
+
   .countdown-hype {
     padding: 1rem;
   }
@@ -968,6 +1104,7 @@ button {
 
   .surprise-msg p,
   .cd-msg,
+  .countdown-microcopy,
   .reason-pill {
     font-size: 0.92rem;
   }

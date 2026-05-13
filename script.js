@@ -2,12 +2,17 @@
   screens: document.querySelectorAll('.screen'),
   countdownHeader: document.getElementById('cd-head'),
   countdownMsg: document.getElementById('cd-msg'),
+  countdownMicrocopy: document.getElementById('countdown-microcopy'),
   countdownDays: document.getElementById('cd-d'),
   countdownHours: document.getElementById('cd-h'),
   countdownMinutes: document.getElementById('cd-m'),
   countdownSeconds: document.getElementById('cd-s'),
   musicWrap: document.getElementById('music-wrap'),
   birthdayMusicWrap: document.getElementById('bday-music-wrap'),
+  countdownProgressFill: document.getElementById('countdown-progress-fill'),
+  countdownProgressValue: document.getElementById('countdown-progress-value'),
+  statusChipPrimary: document.getElementById('status-chip-primary'),
+  statusChipSecondary: document.getElementById('status-chip-secondary'),
   countdownBox: document.querySelector('.countdown-box'),
   countdownHype: document.getElementById('countdown-hype'),
   hypeKicker: document.getElementById('hype-kicker'),
@@ -19,6 +24,8 @@ let countdownInterval = null;
 let audioAutoplayFailed = false;
 let audioRetryTimer = null;
 let birthdaySequenceStarted = false;
+let countdownStartTarget = null;
+let previousSecondValue = null;
 
 const birthdayAudio = document.getElementById('birthday-audio');
 
@@ -50,6 +57,96 @@ function getNextBirthday() {
   return birthday;
 }
 
+function getCountdownStartTarget(target) {
+  const start = new Date(target);
+  start.setDate(start.getDate() - 7);
+  return start.getTime();
+}
+
+function pulseCountdownUnit(element) {
+  if (!element) return;
+  element.classList.remove('pulse');
+  void element.offsetWidth;
+  element.classList.add('pulse');
+}
+
+function setCountdownStage(stageName) {
+  if (!dom.countdownBox) return;
+  dom.countdownBox.classList.remove('stage-distant', 'stage-soon', 'stage-final');
+  dom.countdownBox.classList.add(stageName);
+}
+
+function updateCountdownExperience(difference, days, hours, minutes, seconds) {
+  const target = getNextBirthday();
+  const totalDays = difference / 86400000;
+  const totalHours = difference / 3600000;
+  const totalMinutes = difference / 60000;
+
+  if (!countdownStartTarget) {
+    countdownStartTarget = getCountdownStartTarget(target);
+  }
+
+  const totalWindow = Math.max(target.getTime() - countdownStartTarget, 1);
+  const passed = Math.min(Math.max(Date.now() - countdownStartTarget, 0), totalWindow);
+  const progress = Math.round((passed / totalWindow) * 100);
+
+  if (dom.countdownProgressFill) {
+    dom.countdownProgressFill.style.width = `${progress}%`;
+  }
+
+  if (dom.countdownProgressValue) {
+    dom.countdownProgressValue.textContent = `${progress}%`;
+  }
+
+  let primary = 'Birthday radar: active';
+  let secondary = 'Loading surprise energy ✨';
+  let microcopy = 'The lights are warming up and the surprise is getting ready backstage.';
+  let stageName = 'stage-distant';
+
+  if (totalDays >= 2) {
+    primary = `${days} day${days === 1 ? '' : 's'} left to go`;
+    secondary = 'We are still in the dreamy pre-party zone';
+    microcopy = 'The countdown is calm right now, but every second is secretly building something lovely.';
+  } else if (totalHours >= 6) {
+    primary = 'Today feels different already';
+    secondary = `${hours}h ${minutes}m until birthday mode`;
+    microcopy = 'The room is getting brighter, the music is waiting, and the surprise is almost ready to step on stage.';
+    stageName = 'stage-soon';
+  } else if (totalHours >= 1) {
+    primary = 'Final stretch unlocked';
+    secondary = `${hours} hour${hours === 1 ? '' : 's'} to the big moment`;
+    microcopy = 'This is the golden-hour countdown zone now. Everything is starting to glow a little harder.';
+    stageName = 'stage-soon';
+  } else if (totalMinutes >= 10) {
+    primary = 'Almost party o’clock';
+    secondary = `${minutes} minutes until lift-off`;
+    microcopy = 'The surprise is fully dressed, the confetti is restless, and the page is holding its breath.';
+    stageName = 'stage-final';
+  } else if (totalMinutes >= 1) {
+    primary = 'Last few minutes';
+    secondary = `${minutes}m ${seconds}s to go`;
+    microcopy = 'We are officially in heart-racing territory now. Blink and the birthday blast will be here.';
+    stageName = 'stage-final';
+  } else {
+    primary = 'This is it';
+    secondary = `${seconds} seconds to the explosion`;
+    microcopy = 'Every second now lands louder than the last. The party is literally at the door.';
+    stageName = 'stage-final';
+  }
+
+  setCountdownStage(stageName);
+
+  if (dom.statusChipPrimary) dom.statusChipPrimary.textContent = primary;
+  if (dom.statusChipSecondary) dom.statusChipSecondary.textContent = secondary;
+  if (dom.countdownMicrocopy) dom.countdownMicrocopy.textContent = microcopy;
+
+  if (previousSecondValue !== null && previousSecondValue !== seconds && totalMinutes < 1) {
+    pulseCountdownUnit(dom.countdownSeconds?.parentElement);
+  }
+
+  previousSecondValue = seconds;
+}
+
 function updateCountdown() {
   const now = new Date();
   const target = getNextBirthday();
@@ -71,6 +168,7 @@ function updateCountdown() {
   dom.countdownMinutes.textContent = String(minutes).padStart(2, '0');
   dom.countdownSeconds.textContent = String(seconds).padStart(2, '0');
   dom.countdownMsg.textContent = getCountdownMood(seconds);
+  updateCountdownExperience(difference, days, hours, minutes, seconds);
 }
 
 function getCountdownMood(seconds) {
@@ -167,6 +265,13 @@ function displayBirthdayReady() {
   dom.countdownSeconds.textContent = '00';
   dom.countdownHeader.textContent = "It's time!! 🎉";
   dom.countdownMsg.innerHTML = '<span style="font-size:1.1rem;color:#d63384;font-weight:900">🎂 Happy Birthday Kruthiii!! Click below! 🎂</span>';
+  if (dom.countdownMicrocopy) {
+    dom.countdownMicrocopy.textContent = 'The countdown did its job. Time to open the surprise and let the birthday energy take over.';
+  }
+  if (dom.statusChipPrimary) dom.statusChipPrimary.textContent = 'Birthday unlocked';
+  if (dom.statusChipSecondary) dom.statusChipSecondary.textContent = 'Tap to open the surprise 🎁';
+  if (dom.countdownProgressFill) dom.countdownProgressFill.style.width = '100%';
+  if (dom.countdownProgressValue) dom.countdownProgressValue.textContent = '100%';
   dom.musicWrap.innerHTML = '';
 
   const revealButton = document.createElement('button');
