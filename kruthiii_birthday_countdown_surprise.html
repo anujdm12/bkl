@@ -3,24 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kruthiii Birthday Countdown Surprise</title>
+  <title>Operation K-19 Birthday Vault</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="confetti-bg" id="conf"></div>
-  <audio id="birthday-audio" src="Happy Birthday (Piano Version).mp3" loop preload="auto" autoplay playsinline webkit-playsinline></audio>
+  <div class="cinematic-bars" aria-hidden="true"></div>
+  <div class="cinematic-fx" aria-hidden="true">
+    <span class="film-grain"></span>
+    <span class="light-beam beam-one"></span>
+    <span class="light-beam beam-two"></span>
+    <span class="lens-flare"></span>
+    <span class="energy-orb orb-one"></span>
+    <span class="energy-orb orb-two"></span>
+    <span class="energy-orb orb-three"></span>
+    <span class="ember ember-one"></span>
+    <span class="ember ember-two"></span>
+    <span class="ember ember-three"></span>
+    <span class="ember ember-four"></span>
+  </div>
+  <div class="thriller-vignette" aria-hidden="true"></div>
+  <audio id="bella-ciao-audio" src="Bella Ciao - La Casa De Papel (Money Heist) [4K] (mp3cut.net).mp3" loop preload="auto"></audio>
   <div class="wrap">
     <div class="screen active" id="s-countdown">
       <div class="countdown-box">
-        <div class="cd-label">⏳ counting down to</div>
-        <div class="cd-title" id="cd-head">Kruthiii turns 19! 🎂</div>
-        <div class="countdown-status">
-          <div class="status-chip" id="status-chip-primary">Birthday radar: active</div>
-          <div class="status-chip alt" id="status-chip-secondary">Loading surprise energy ✨</div>
+        <div class="energy-rings" aria-hidden="true">
+          <span></span><span></span><span></span>
         </div>
+        <div class="alarm-sweep" aria-hidden="true"></div>
+        <div class="hud-corners" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="heist-mask" aria-hidden="true">
+          <span class="mask-eye left"></span>
+          <span class="mask-eye right"></span>
+        </div>
+        <div class="classified-strip">
+          <span>The plan: K-19</span>
+          <span>Vault sealed</span>
+        </div>
+        <div class="cd-label">⏳ heist countdown active</div>
+        <div class="cd-title" id="cd-head" data-text="Kruthiii's birthday vault">Kruthiii's birthday vault</div>
+        <div class="countdown-status">
+          <div class="status-chip" id="status-chip-primary">Crew on standby</div>
+          <div class="status-chip alt" id="status-chip-secondary">Gold room locked</div>
+        </div>
+        <div class="heartbeat-line" aria-hidden="true"><span></span></div>
         <div class="cd-grid">
           <div class="cd-unit"><div class="cd-num" id="cd-d">00</div><div class="cd-word">Days</div></div>
           <div class="cd-unit"><div class="cd-num" id="cd-h">00</div><div class="cd-word">Hours</div></div>
@@ -29,75 +60,27 @@
         </div>
         <div class="countdown-progress-shell">
           <div class="countdown-progress-head">
-            <span class="progress-label">Birthday energy meter</span>
+            <span class="progress-label">Heist progress</span>
             <span class="progress-value" id="countdown-progress-value">0%</span>
           </div>
           <div class="countdown-progress-track">
             <div class="countdown-progress-fill" id="countdown-progress-fill"></div>
           </div>
         </div>
-        <div class="cd-msg" id="cd-msg">Hang tight... the birthday magic is almost here 🌟</div>
-        <div class="countdown-microcopy" id="countdown-microcopy">The lights are warming up and the surprise is getting ready backstage.</div>
-        <div class="daily-ritual-panel">
-          <div class="daily-ritual-head">
-            <div class="ritual-badge" id="visit-streak-badge">Check-in streak: 1 day</div>
-            <div class="ritual-badge alt" id="next-refresh-badge">New tease unlocks tomorrow</div>
-          </div>
-          <div class="ritual-grid">
-            <div class="ritual-card">
-              <div class="ritual-label">Today’s tease</div>
-              <div class="ritual-title" id="daily-tease-title">Something soft, sweet, and worth waiting for</div>
-              <div class="ritual-copy" id="daily-tease-copy">Today’s version of the page only gives you a tiny piece. Tomorrow gives you another.</div>
-            </div>
-            <div class="ritual-card alt">
-              <div class="ritual-label">Why come back?</div>
-              <div class="ritual-title" id="return-hook-title">The surprise remembers your visits</div>
-              <div class="ritual-copy" id="return-hook-copy">Each day you peek in, the page feels a little more awake and a little more ready to burst open.</div>
-            </div>
-          </div>
-        </div>
+        <div class="cd-msg" id="cd-msg">The plan is set. Nobody opens the vault early.</div>
+        <div class="countdown-microcopy" id="countdown-microcopy">Red lights on, crew quiet, birthday surprise locked behind the final door.</div>
         <div id="music-wrap"></div>
         <div class="countdown-hype" id="countdown-hype" aria-hidden="true">
           <div class="hype-core">
-            <div class="hype-kicker" id="hype-kicker">Birthday energy loading...</div>
+            <div class="hype-kicker" id="hype-kicker">Final protocol loading...</div>
             <div class="hype-number" id="hype-number">3</div>
-            <div class="hype-burst" id="hype-burst">🎉 PARTY TIME 🎉</div>
+            <div class="hype-burst" id="hype-burst">🎉 VAULT OPEN 🎉</div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="screen" id="s-surprise">
-      <div id="bday-music-wrap"></div>
-      <div class="surprise-box">
-        <div class="float-icon" style="font-size:3rem">🎉</div>
-        <div class="surprise-title">Happy Birthday,<br>Kruthiii! 🎂</div>
-        <div class="age-badge">Hello, 19! 🥳</div>
-        <div style="font-size:1.8rem;letter-spacing:6px;margin:.5rem 0">🎈 🌸 💖 🌟</div>
-        <div class="surprise-msg">
-          <p>
-            "She's been there through <span class="hl">everything</span> —
-            through the storms, the laughs, the 2am conversations, the moments I didn't even have words for.
-            Though she's my <span class="hl">elder sis</span>, she'll always remain a
-            <span class="hl">kid</span> to me — and honestly? That's my favourite thing about her.
-            Not blood. But <span class="hl">family</span>. Forever and always. 💕"
-          </p>
-        </div>
-        <div class="reasons-grid">
-          <div class="reason-pill"><span class="ri">🤝</span>Always there for me</div>
-          <div class="reason-pill"><span class="ri">😂</span>Makes me laugh like crazy</div>
-          <div class="reason-pill"><span class="ri">👑</span>Elder sis energy</div>
-          <div class="reason-pill"><span class="ri">🧒</span>Forever a kid at heart</div>
-          <div class="reason-pill"><span class="ri">💪</span>My strength always</div>
-          <div class="reason-pill"><span class="ri">✨</span>Simply irreplaceable</div>
-        </div>
-        <div style="background:#fff3cd;border:2px dashed #ffcc44;border-radius:18px;padding:1.2rem;margin:.8rem 0">
-          <div style="font-size:3rem;animation:floatY 2s ease-in-out infinite">🎂</div>
-          <div style="font-family:'Pacifico',cursive;font-size:1.1rem;color:#856404">Make a wish, sis! 🕯️</div>
-        </div>
-        <div class="footer-love">Love you to the moon & back <span class="pulse">💗</span></div>
-      </div>
-    </div>
+    <!-- Surprise screen moved to surprise.html -->
   </div>
 
   <script src="script.js" defer></script>

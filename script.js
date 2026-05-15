@@ -3,12 +3,6 @@
   countdownHeader: document.getElementById('cd-head'),
   countdownMsg: document.getElementById('cd-msg'),
   countdownMicrocopy: document.getElementById('countdown-microcopy'),
-  visitStreakBadge: document.getElementById('visit-streak-badge'),
-  nextRefreshBadge: document.getElementById('next-refresh-badge'),
-  dailyTeaseTitle: document.getElementById('daily-tease-title'),
-  dailyTeaseCopy: document.getElementById('daily-tease-copy'),
-  returnHookTitle: document.getElementById('return-hook-title'),
-  returnHookCopy: document.getElementById('return-hook-copy'),
   countdownDays: document.getElementById('cd-d'),
   countdownHours: document.getElementById('cd-h'),
   countdownMinutes: document.getElementById('cd-m'),
@@ -32,41 +26,14 @@ let audioRetryTimer = null;
 let birthdaySequenceStarted = false;
 let countdownStartTarget = null;
 let previousSecondValue = null;
-let dailyVisitState = null;
 
+const bellaCiaoAudio = document.getElementById('bella-ciao-audio');
 const birthdayAudio = document.getElementById('birthday-audio');
-const DAILY_VISIT_KEY = 'kruthiii-countdown-visit-state';
-const DAILY_TEASES = [
-  {
-    title: 'A soft memory is hiding inside this surprise',
-    copy: 'Not every gift is loud. Some hit hardest because they feel personal, warm, and unexpectedly close to the heart.',
-  },
-  {
-    title: 'Tomorrow’s page should feel a little more dangerous',
-    copy: 'The closer we get, the less calm this countdown wants to stay. It is learning how to make an entrance.',
-  },
-  {
-    title: 'One part of the surprise is pure elder-sis energy',
-    copy: 'It is equal parts comfort, chaos, sweetness, and that impossible mix of feeling safe and roasted at the same time.',
-  },
-  {
-    title: 'The ending is not the only thing waiting for her',
-    copy: 'There is a build-up happening here on purpose. You are meant to feel curiosity doing small circles in your head.',
-  },
-  {
-    title: 'This page keeps a tiny secret for repeat visitors',
-    copy: 'The more often you come back, the more it feels like the surprise is watching the countdown with you.',
-  },
-  {
-    title: 'The final reveal is sweeter if you let the suspense cook',
-    copy: 'That is why today only gives you a taste. Waiting is part of the gift this time.',
-  },
-];
 
 function makeConfetti() {
   const confettiRoot = document.getElementById('conf');
-  const palette = ['#ff5fa0', '#ff9de2', '#ffcc44', '#a78bfa', '#34d399', '#60a5fa', '#fb923c', '#f472b6'];
-  const pieces = 55;
+  const palette = ['#e50914', '#7f070d', '#ffdf8a', '#b77817', '#050505', '#ffffff'];
+  const pieces = 42;
 
   for (let index = 0; index < pieces; index += 1) {
     const piece = document.createElement('div');
@@ -82,6 +49,12 @@ function showScreen(screenId) {
   document.getElementById(screenId).classList.add('active');
 }
 
+function setCountdownHeader(text) {
+  if (!dom.countdownHeader) return;
+  dom.countdownHeader.textContent = text;
+  dom.countdownHeader.dataset.text = text;
+}
+
 function getNextBirthday() {
   const now = new Date();
   const birthday = new Date(now.getFullYear(), 4, 26, 0, 0, 0);
@@ -95,99 +68,6 @@ function getCountdownStartTarget(target) {
   const start = new Date(target);
   start.setDate(start.getDate() - 7);
   return start.getTime();
-}
-
-function getDayStamp(date = new Date()) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function getPreviousDayStamp() {
-  const previous = new Date();
-  previous.setDate(previous.getDate() - 1);
-  return getDayStamp(previous);
-}
-
-function loadDailyVisitState() {
-  const today = getDayStamp();
-  const yesterday = getPreviousDayStamp();
-  const fallback = { lastVisit: today, streak: 1, firstVisitToday: true };
-
-  try {
-    const raw = window.localStorage.getItem(DAILY_VISIT_KEY);
-    if (!raw) {
-      window.localStorage.setItem(DAILY_VISIT_KEY, JSON.stringify(fallback));
-      return fallback;
-    }
-
-    const parsed = JSON.parse(raw);
-    let streak = Number(parsed.streak) || 1;
-    let firstVisitToday = false;
-
-    if (parsed.lastVisit === today) {
-      return { lastVisit: today, streak, firstVisitToday };
-    }
-
-    firstVisitToday = true;
-    streak = parsed.lastVisit === yesterday ? streak + 1 : 1;
-    const nextState = { lastVisit: today, streak, firstVisitToday };
-    window.localStorage.setItem(DAILY_VISIT_KEY, JSON.stringify(nextState));
-    return nextState;
-  } catch {
-    return fallback;
-  }
-}
-
-function formatTimeUntilTomorrow() {
-  const now = new Date();
-  const tomorrow = new Date(now);
-  tomorrow.setHours(24, 0, 0, 0);
-  const difference = Math.max(tomorrow - now, 0);
-  const hours = Math.floor(difference / 3600000);
-  const minutes = Math.floor((difference % 3600000) / 60000);
-  return `${hours}h ${String(minutes).padStart(2, '0')}m`;
-}
-
-function updateDailyRitual(difference, days, hours, minutes) {
-  if (!dailyVisitState) {
-    dailyVisitState = loadDailyVisitState();
-  }
-
-  const teaseIndex = Math.abs(days + hours + new Date().getDate()) % DAILY_TEASES.length;
-  const tease = DAILY_TEASES[teaseIndex];
-  const visitText = dailyVisitState.streak === 1 ? '1 day' : `${dailyVisitState.streak} days`;
-
-  if (dom.visitStreakBadge) {
-    dom.visitStreakBadge.textContent = `Check-in streak: ${visitText}`;
-  }
-
-  if (dom.nextRefreshBadge) {
-    dom.nextRefreshBadge.textContent = `New tease unlocks in ${formatTimeUntilTomorrow()}`;
-  }
-
-  if (dom.dailyTeaseTitle) dom.dailyTeaseTitle.textContent = tease.title;
-  if (dom.dailyTeaseCopy) dom.dailyTeaseCopy.textContent = tease.copy;
-
-  let returnTitle = 'The surprise remembers your visits';
-  let returnCopy = dailyVisitState.firstVisitToday
-    ? 'Nice. Today counted. Come back tomorrow and this page will greet you with a fresh tease and a hotter countdown mood.'
-    : 'You already checked in today. Come back after midnight for a fresh tease and another little hit of suspense.';
-
-  if (difference / 3600000 <= 24) {
-    returnTitle = 'Now the waiting becomes deliciously unbearable';
-    returnCopy = 'From here on, checking this page feels dangerous in the best way. The closer it gets, the more impossible it is not to peek again.';
-  } else if (difference / 86400000 <= 3) {
-    returnTitle = 'This is the phase where people start checking twice';
-    returnCopy = 'You are close enough now that every revisit feels justified. The page knows it, and it is leaning into it.';
-  } else if (dailyVisitState.streak >= 3) {
-    returnTitle = 'The page officially thinks you are invested';
-    returnCopy = `A ${visitText} streak means the suspense is working. Keep the streak alive and let the anticipation do its thing.`;
-  }
-
-  if (dom.returnHookTitle) dom.returnHookTitle.textContent = returnTitle;
-  if (dom.returnHookCopy) dom.returnHookCopy.textContent = returnCopy;
 }
 
 function pulseCountdownUnit(element) {
@@ -225,39 +105,39 @@ function updateCountdownExperience(difference, days, hours, minutes, seconds) {
     dom.countdownProgressValue.textContent = `${progress}%`;
   }
 
-  let primary = 'Birthday radar: active';
-  let secondary = 'Loading surprise energy ✨';
-  let microcopy = 'The lights are warming up and the surprise is getting ready backstage.';
+  let primary = 'Crew on standby';
+  let secondary = 'Gold room locked';
+  let microcopy = 'Red lights on, crew quiet, birthday surprise locked behind the final door.';
   let stageName = 'stage-distant';
 
   if (totalDays >= 2) {
-    primary = `${days} day${days === 1 ? '' : 's'} left to go`;
-    secondary = 'We are still in the dreamy pre-party zone';
-    microcopy = 'The countdown is calm right now, but every second is secretly building something lovely.';
+    primary = `${days} day${days === 1 ? '' : 's'} until the plan moves`;
+    secondary = 'Blueprint still hidden';
+    microcopy = 'The vault looks quiet, but every second is part of the plan.';
   } else if (totalHours >= 6) {
-    primary = 'Today feels different already';
-    secondary = `${hours}h ${minutes}m until birthday mode`;
-    microcopy = 'The room is getting brighter, the music is waiting, and the surprise is almost ready to step on stage.';
+    primary = 'Masks ready';
+    secondary = `${hours}h ${minutes}m until the door opens`;
+    microcopy = 'The red room is glowing. The crew is waiting for the exact second.';
     stageName = 'stage-soon';
   } else if (totalHours >= 1) {
-    primary = 'Final stretch unlocked';
-    secondary = `${hours} hour${hours === 1 ? '' : 's'} to the big moment`;
-    microcopy = 'This is the golden-hour countdown zone now. Everything is starting to glow a little harder.';
+    primary = 'Final phase';
+    secondary = `${hours} hour${hours === 1 ? '' : 's'} until the vault run`;
+    microcopy = 'The lock is listening. The birthday surprise is almost in reach.';
     stageName = 'stage-soon';
   } else if (totalMinutes >= 10) {
-    primary = 'Almost party o’clock';
-    secondary = `${minutes} minutes until lift-off`;
-    microcopy = 'The surprise is fully dressed, the confetti is restless, and the page is holding its breath.';
+    primary = 'Sirens armed';
+    secondary = `${minutes} minutes to the vault`;
+    microcopy = 'No sudden moves now. The plan is entering the dangerous part.';
     stageName = 'stage-final';
   } else if (totalMinutes >= 1) {
-    primary = 'Last few minutes';
+    primary = 'Last mask check';
     secondary = `${minutes}m ${seconds}s to go`;
-    microcopy = 'We are officially in heart-racing territory now. Blink and the birthday blast will be here.';
+    microcopy = 'The crew is at the door. The surprise is seconds away from escape.';
     stageName = 'stage-final';
   } else {
-    primary = 'This is it';
-    secondary = `${seconds} seconds to the explosion`;
-    microcopy = 'Every second now lands louder than the last. The party is literally at the door.';
+    primary = 'Vault opening';
+    secondary = `${seconds} seconds to reveal`;
+    microcopy = 'Do not blink. The heist ends with birthday chaos.';
     stageName = 'stage-final';
   }
 
@@ -271,7 +151,6 @@ function updateCountdownExperience(difference, days, hours, minutes, seconds) {
     pulseCountdownUnit(dom.countdownSeconds?.parentElement);
   }
 
-  updateDailyRitual(difference, days, hours, minutes);
   previousSecondValue = seconds;
 }
 
@@ -301,15 +180,15 @@ function updateCountdown() {
 
 function getCountdownMood(seconds) {
   if (seconds <= 5) {
-    return 'Hold on... this is about to explode into birthday mode 🎆';
+    return 'Final siren... the birthday vault is opening.';
   }
 
   const phrases = [
-    'Hang tight... the birthday magic is almost here 🌟',
-    'She’s gonna LOVE this 😏',
-    'Psst... don’t peek at the surprise early 👀',
-    'The countdown is real. The love is realer. 💕',
-    'Almost time to embarrass her with all this love 😂',
+    'The plan is set. Nobody opens the vault early.',
+    'The crew is quiet, but the countdown is loud.',
+    'Do not peek early. The vault remembers every move.',
+    'Red lights. Locked doors. One birthday target.',
+    'Every tick sounds like part of the plan.',
   ];
   return phrases[Math.floor(seconds / 12) % phrases.length];
 }
@@ -324,7 +203,7 @@ function triggerMiniConfettiBurst() {
   const confettiRoot = document.getElementById('conf');
   if (!confettiRoot) return;
 
-  const palette = ['#ff5fa0', '#ffcc44', '#00d9ff', '#a78bfa', '#34d399', '#ffffff'];
+  const palette = ['#e50914', '#ffdf8a', '#b77817', '#ffffff', '#050505'];
   for (let index = 0; index < 26; index += 1) {
     const piece = document.createElement('div');
     piece.className = 'cp';
@@ -340,12 +219,13 @@ async function runBirthdayHypeSequence() {
   if (birthdaySequenceStarted) return;
   birthdaySequenceStarted = true;
 
+  document.body.classList.add('cinematic-maximum');
   dom.countdownDays.textContent = '00';
   dom.countdownHours.textContent = '00';
   dom.countdownMinutes.textContent = '00';
   dom.countdownSeconds.textContent = '00';
-  dom.countdownHeader.textContent = 'It is happening... ✨';
-  dom.countdownMsg.textContent = 'Get ready for the birthday blast-off 🚀';
+  setCountdownHeader('The final door is opening...');
+  dom.countdownMsg.textContent = 'Masks on. Final phase engaged.';
   dom.musicWrap.innerHTML = '';
 
   if (dom.countdownHype) {
@@ -354,9 +234,9 @@ async function runBirthdayHypeSequence() {
   }
 
   const sequence = [
-    { number: '3', kicker: 'Everybody ready?', delay: 750 },
-    { number: '2', kicker: 'Turn the hype all the way up', delay: 750 },
-    { number: '1', kicker: 'Kruthiii mode incoming...', delay: 800 },
+    { number: '3', kicker: 'Crew in position', delay: 750 },
+    { number: '2', kicker: 'Vault code accepted', delay: 750 },
+    { number: '1', kicker: 'Kruthiii heist live', delay: 800 },
   ];
 
   for (const step of sequence) {
@@ -370,7 +250,7 @@ async function runBirthdayHypeSequence() {
     await wait(step.delay);
   }
 
-  if (dom.hypeKicker) dom.hypeKicker.textContent = 'And now... explode the party!';
+  if (dom.hypeKicker) dom.hypeKicker.textContent = 'The plan worked';
   if (dom.hypeNumber) dom.hypeNumber.textContent = '0';
   if (dom.countdownHype) dom.countdownHype.classList.add('burst');
   if (dom.countdownBox) dom.countdownBox.classList.add('party-mode');
@@ -382,44 +262,56 @@ async function runBirthdayHypeSequence() {
     dom.countdownHype.setAttribute('aria-hidden', 'true');
   }
   if (dom.countdownBox) dom.countdownBox.classList.remove('party-mode');
+  document.body.classList.remove('cinematic-maximum');
 
   displayBirthdayReady();
 }
+
 
 function displayBirthdayReady() {
   dom.countdownDays.textContent = '00';
   dom.countdownHours.textContent = '00';
   dom.countdownMinutes.textContent = '00';
   dom.countdownSeconds.textContent = '00';
-  dom.countdownHeader.textContent = "It's time!! 🎉";
-  dom.countdownMsg.innerHTML = '<span style="font-size:1.1rem;color:#d63384;font-weight:900">🎂 Happy Birthday Kruthiii!! Click below! 🎂</span>';
+  setCountdownHeader("The vault is yours.");
+  dom.countdownMsg.innerHTML = '<span style="font-size:1.1rem;color:#ffdf8a;font-weight:900">🎂 Happy Birthday Kruthiii!! Open the final reveal. 🎂</span>';
   if (dom.countdownMicrocopy) {
-    dom.countdownMicrocopy.textContent = 'The countdown did its job. Time to open the surprise and let the birthday energy take over.';
+    dom.countdownMicrocopy.textContent = 'The heist is complete. The birthday surprise is waiting inside the vault.';
   }
-  if (dom.statusChipPrimary) dom.statusChipPrimary.textContent = 'Birthday unlocked';
-  if (dom.statusChipSecondary) dom.statusChipSecondary.textContent = 'Tap to open the surprise 🎁';
+  if (dom.statusChipPrimary) dom.statusChipPrimary.textContent = 'Plan complete';
+  if (dom.statusChipSecondary) dom.statusChipSecondary.textContent = 'Gold room open 🎁';
   if (dom.countdownProgressFill) dom.countdownProgressFill.style.width = '100%';
   if (dom.countdownProgressValue) dom.countdownProgressValue.textContent = '100%';
-  if (dom.visitStreakBadge) dom.visitStreakBadge.textContent = 'Check-in streak completed';
-  if (dom.nextRefreshBadge) dom.nextRefreshBadge.textContent = 'No more waiting needed';
-  if (dom.dailyTeaseTitle) dom.dailyTeaseTitle.textContent = 'The waiting part is over';
-  if (dom.dailyTeaseCopy) dom.dailyTeaseCopy.textContent = 'No more tiny clues. The real birthday surprise is ready for you now.';
-  if (dom.returnHookTitle) dom.returnHookTitle.textContent = 'This was worth coming back for';
-  if (dom.returnHookCopy) dom.returnHookCopy.textContent = 'All that suspense finally pays off here. Open it and let the birthday chaos begin.';
   dom.musicWrap.innerHTML = '';
 
-  const revealButton = document.createElement('button');
+  const revealButton = document.createElement('a');
   revealButton.className = 'unlock-btn';
-  revealButton.textContent = 'Open your Birthday Surprise 🎁';
-  revealButton.addEventListener('click', showSurprise);
+  revealButton.textContent = 'Open the Birthday Vault 🎁';
+  revealButton.href = 'surprise.html';
+  revealButton.style.display = 'inline-block';
   dom.musicWrap.appendChild(revealButton);
+  // Auto-navigate to surprise page shortly after countdown completes
+  window.setTimeout(() => {
+    // stop countdown music and go to surprise page
+    stopBellaCiaoAudio();
+    window.location.href = 'surprise.html';
+  }, 900);
+}
+
+
+function prepareAudio(audio, volume = 0.82, loop = true) {
+  if (!audio) return;
+  audio.volume = volume;
+  audio.loop = loop;
+  audio.preload = 'auto';
 }
 
 function prepareBirthdayAudio() {
-  if (!birthdayAudio) return;
-  birthdayAudio.volume = 0.82;
-  birthdayAudio.loop = true;
-  birthdayAudio.preload = 'auto';
+  prepareAudio(birthdayAudio, 0.82, true);
+}
+
+function prepareBellaCiaoAudio() {
+  prepareAudio(bellaCiaoAudio, 0.7, true);
 }
 
 function syncMusicUi() {
@@ -459,6 +351,9 @@ function attemptPlayBirthdayAudio() {
 function enableAudioFallback() {
   const events = ['click', 'touchstart', 'keypress', 'pointerdown'];
   const playAudioOnce = () => {
+    if (bellaCiaoAudio && bellaCiaoAudio.paused) {
+      attemptPlayBellaCiaoAudio();
+    }
     if (birthdayAudio && birthdayAudio.paused) {
       attemptPlayBirthdayAudio();
     }
@@ -467,10 +362,46 @@ function enableAudioFallback() {
   events.forEach(evt => document.addEventListener(evt, playAudioOnce, { once: true }));
 }
 
+
+function startBellaCiaoAudio() {
+  if (!bellaCiaoAudio) return;
+  prepareBellaCiaoAudio();
+  if (bellaCiaoAudio.paused) {
+    bellaCiaoAudio.currentTime = 0;
+    const p = bellaCiaoAudio.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(() => {
+        // autoplay blocked — wait for user interaction
+        enableAudioFallback();
+      });
+    }
+  }
+}
+
+function attemptPlayBellaCiaoAudio() {
+  if (!bellaCiaoAudio) return;
+  prepareBellaCiaoAudio();
+  const playPromise = bellaCiaoAudio.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      // OK
+    }).catch(() => {
+      enableAudioFallback();
+    });
+  }
+}
+
+function stopBellaCiaoAudio() {
+  if (!bellaCiaoAudio) return;
+  bellaCiaoAudio.pause();
+  bellaCiaoAudio.currentTime = 0;
+}
+
 function startBirthdayAudio() {
   if (!birthdayAudio) return;
   prepareBirthdayAudio();
   if (birthdayAudio.paused) {
+    birthdayAudio.currentTime = 0;
     attemptPlayBirthdayAudio();
     return;
   }
@@ -507,47 +438,55 @@ function renderMusicButton(containerId) {
   wrapper.appendChild(button);
 }
 
+
 function showSurprise() {
+  stopBellaCiaoAudio();
   startBirthdayAudio();
-  showScreen('s-surprise');
-  renderMusicButton('bday-music-wrap');
+  const surpriseScreen = document.getElementById('s-surprise');
+  if (surpriseScreen) {
+    showScreen('s-surprise');
+    renderMusicButton('bday-music-wrap');
+  } else {
+    // separate page — navigate
+    window.location.href = 'surprise.html';
+  }
 }
 
+
+
+function stopBirthdayAudio() {
+  if (!birthdayAudio) return;
+  birthdayAudio.pause();
+  birthdayAudio.currentTime = 0;
+}
+
+
 function showCountdown() {
-  startBirthdayAudio();
+  startBellaCiaoAudio();
+  stopBirthdayAudio();
   showScreen('s-countdown');
-  renderMusicButton('music-wrap');
+  // Remove music button in countdown phase
+  if (dom.musicWrap) dom.musicWrap.innerHTML = '';
   updateCountdown();
   countdownInterval = setInterval(updateCountdown, 1000);
 }
 
+
 function initializeApp() {
-  dailyVisitState = loadDailyVisitState();
   makeConfetti();
   prepareBirthdayAudio();
-  attemptPlayBirthdayAudio();
+  prepareBellaCiaoAudio();
   showCountdown();
+  // try to start Bella Ciao immediately (may be blocked until user interaction)
+  attemptPlayBellaCiaoAudio();
   enableAudioFallback();
 }
 
 window.addEventListener('DOMContentLoaded', initializeApp);
 
-window.addEventListener('pageshow', () => {
-  if (birthdayAudio && birthdayAudio.paused) {
-    attemptPlayBirthdayAudio();
-  }
-});
 
-window.addEventListener('load', attemptPlayBirthdayAudio);
-window.addEventListener('focus', attemptPlayBirthdayAudio);
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) {
-    attemptPlayBirthdayAudio();
-  }
-});
-
+// Only attach music UI sync events, not auto-play events
 if (birthdayAudio) {
-  birthdayAudio.addEventListener('canplay', attemptPlayBirthdayAudio);
   birthdayAudio.addEventListener('play', syncMusicUi);
   birthdayAudio.addEventListener('pause', syncMusicUi);
 }
