@@ -1,58 +1,174 @@
-// surprise.js
-// Handles birthday music and button for the surprise page only
-
 const birthdayAudio = document.getElementById('birthday-audio');
 const bdayMusicWrap = document.getElementById('bday-music-wrap');
+const wishVault = document.getElementById('wish-vault');
+const blowCandleButton = document.getElementById('blow-candle');
+const wishAction = document.getElementById('wish-action');
+const sparkleRoot = document.getElementById('birthday-sparkles');
+const wishCard = document.querySelector('.birthday-wish-card');
+let audioFallbackAttached = false;
+let autoplayRetryTimer = null;
+let autoplayRetryCount = 0;
 
 function prepareBirthdayAudio() {
   if (!birthdayAudio) return;
   birthdayAudio.volume = 0.82;
   birthdayAudio.loop = true;
+  birthdayAudio.autoplay = true;
   birthdayAudio.preload = 'auto';
-}
-
-function attemptPlayBirthdayAudio() {
-  if (!birthdayAudio) return;
-  prepareBirthdayAudio();
-  if (birthdayAudio.paused) {
-    birthdayAudio.currentTime = 0;
-    birthdayAudio.play();
-  }
-  syncMusicUi();
-}
-
-function toggleBirthdayAudio() {
-  if (!birthdayAudio) return;
-  if (birthdayAudio.paused) {
-    attemptPlayBirthdayAudio();
-  } else {
-    birthdayAudio.pause();
-    syncMusicUi();
-  }
+  birthdayAudio.setAttribute('autoplay', '');
+  birthdayAudio.setAttribute('playsinline', '');
 }
 
 function syncMusicUi() {
-  const label = birthdayAudio && !birthdayAudio.paused ? '⏹ Pause music' : '🎵 Play birthday music';
+  const label = birthdayAudio && !birthdayAudio.paused ? 'Pause music' : 'Play birthday music';
   document.querySelectorAll('.music-btn-inner').forEach((element) => {
     element.textContent = label;
   });
 }
 
+function attemptPlayBirthdayAudio() {
+  if (!birthdayAudio) return;
+  prepareBirthdayAudio();
+
+  if (birthdayAudio.paused) {
+    if (birthdayAudio.currentTime === 0 || birthdayAudio.ended) {
+      birthdayAudio.currentTime = 0;
+    }
+    const promise = birthdayAudio.play();
+    if (promise && typeof promise.catch === 'function') {
+      promise.then(syncMusicUi).catch(() => {
+        syncMusicUi();
+        enableAudioAfterInteraction();
+        queueAutoplayRetry();
+      });
+      return;
+    }
+  }
+
+  syncMusicUi();
+}
+
+function toggleBirthdayAudio() {
+  if (!birthdayAudio) return;
+
+  if (birthdayAudio.paused) {
+    attemptPlayBirthdayAudio();
+    return;
+  }
+
+  birthdayAudio.pause();
+  syncMusicUi();
+}
+
 function renderMusicButton() {
   if (!bdayMusicWrap) return;
+
   bdayMusicWrap.innerHTML = '';
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'music-btn';
-  button.innerHTML = `<span class="music-btn-inner">🎵 Play birthday music</span>`;
+  button.innerHTML = '<span class="music-btn-inner">Play birthday music</span>';
   button.addEventListener('click', toggleBirthdayAudio);
   bdayMusicWrap.appendChild(button);
   syncMusicUi();
 }
 
+function enableAudioAfterInteraction() {
+  if (!birthdayAudio || audioFallbackAttached) return;
+  audioFallbackAttached = true;
+
+  const events = ['click', 'touchstart', 'keydown', 'pointerdown', 'pointerup'];
+  const unlockOnce = () => {
+    autoplayRetryCount = 0;
+    if (birthdayAudio.paused) {
+      birthdayAudio.play().then(syncMusicUi).catch(() => {});
+    }
+    events.forEach((eventName) => document.removeEventListener(eventName, unlockOnce, true));
+    audioFallbackAttached = false;
+  };
+
+  events.forEach((eventName) => document.addEventListener(eventName, unlockOnce, { once: true, capture: true }));
+}
+
+function queueAutoplayRetry() {
+  if (autoplayRetryTimer || autoplayRetryCount >= 10 || !birthdayAudio || !birthdayAudio.paused) return;
+
+  autoplayRetryTimer = window.setTimeout(() => {
+    autoplayRetryTimer = null;
+    autoplayRetryCount += 1;
+    attemptPlayBirthdayAudio();
+  }, 900);
+}
+
+function autoPlayBirthdayAudio() {
+  if (!birthdayAudio) return;
+  prepareBirthdayAudio();
+  birthdayAudio.currentTime = 0;
+
+  const promise = birthdayAudio.play();
+  if (promise !== undefined) {
+    promise.then(syncMusicUi).catch(() => {
+      syncMusicUi();
+      enableAudioAfterInteraction();
+      queueAutoplayRetry();
+    });
+  }
+}
+
+function createSparkleBurst() {
+  if (!sparkleRoot) return;
+
+  const colors = ['#ffdf8a', '#fff2c7', '#e50914', '#ffffff'];
+  const centerX = 50;
+  const centerY = 48;
+
+  for (let index = 0; index < 42; index += 1) {
+    const sparkle = document.createElement('span');
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 90 + Math.random() * 230;
+    const size = 5 + Math.random() * 8;
+
+    sparkle.className = 'birthday-sparkle';
+    sparkle.style.setProperty('--x', `${centerX + (Math.random() * 10 - 5)}vw`);
+    sparkle.style.setProperty('--y', `${centerY + (Math.random() * 8 - 4)}vh`);
+    sparkle.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+    sparkle.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
+    sparkle.style.setProperty('--size', `${size}px`);
+    sparkle.style.setProperty('--spark', colors[index % colors.length]);
+    sparkleRoot.appendChild(sparkle);
+
+    window.setTimeout(() => sparkle.remove(), 1500);
+  }
+}
+
+function blowOutCandle() {
+  if (!wishVault || wishVault.classList.contains('candle-out')) return;
+
+  wishVault.classList.add('candle-out');
+  wishCard?.classList.add('wish-complete');
+  if (wishAction) {
+    wishAction.textContent = 'Wish sent. Candle blown out.';
+  }
+  if (blowCandleButton) {
+    blowCandleButton.disabled = true;
+    blowCandleButton.setAttribute('aria-label', 'Birthday candle blown out');
+  }
+
+  createSparkleBurst();
+  attemptPlayBirthdayAudio();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   renderMusicButton();
-  prepareBirthdayAudio();
+  autoPlayBirthdayAudio();
+  blowCandleButton?.addEventListener('click', blowOutCandle);
+});
+window.addEventListener('pageshow', attemptPlayBirthdayAudio);
+window.addEventListener('focus', attemptPlayBirthdayAudio);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    attemptPlayBirthdayAudio();
+  }
 });
 
 if (birthdayAudio) {
