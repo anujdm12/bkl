@@ -1889,6 +1889,82 @@ button {
   }
 }
 
+body.surprise-desktop-page {
+  min-width: 820px;
+  overflow-x: auto;
+}
+
+body.surprise-desktop-page .birthday-wish-card,
+body.surprise-desktop-page #bday-music-wrap {
+  width: min(760px, calc(100% - 2rem));
+}
+
+@media (max-width: 720px) {
+  body.surprise-desktop-page .surprise-box {
+    padding: 2.2rem 1.9rem;
+  }
+
+  body.surprise-desktop-page .music-btn {
+    width: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  body.surprise-desktop-page .surprise-box {
+    padding: 2.2rem 1.9rem;
+    border-radius: 28px;
+  }
+
+  body.surprise-desktop-page .surprise-title {
+    line-height: 1;
+  }
+
+  body.surprise-desktop-page .surprise-msg {
+    padding: 1.4rem 1.6rem;
+  }
+
+  body.surprise-desktop-page .surprise-msg p {
+    font-size: 1.05rem;
+    line-height: 1.9;
+  }
+
+  body.surprise-desktop-page .cake-stage {
+    width: min(260px, 76vw);
+    height: 230px;
+  }
+
+  body.surprise-desktop-page .cake-plate {
+    width: 230px;
+  }
+
+  body.surprise-desktop-page .cake-body {
+    width: 190px;
+    height: 92px;
+  }
+
+  body.surprise-desktop-page .candle {
+    bottom: 134px;
+  }
+}
+
+@media (max-width: 380px) {
+  body.surprise-desktop-page .surprise-title {
+    font-size: clamp(3rem, 10vw, 5rem);
+  }
+
+  body.surprise-desktop-page .surprise-msg p {
+    font-size: 1.05rem;
+  }
+
+  body.surprise-desktop-page .wish-instruction {
+    font-size: clamp(1.15rem, 3vw, 1.55rem);
+  }
+
+  body.surprise-desktop-page .birthday-blessing {
+    font-size: 1.28rem;
+  }
+}
+
 @media (max-width: 720px) {
   .cinematic-bars::before,
   .cinematic-bars::after {

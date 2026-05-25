@@ -1,177 +1,161 @@
-const birthdayAudio = document.getElementById('birthday-audio');
-const bdayMusicWrap = document.getElementById('bday-music-wrap');
-const wishVault = document.getElementById('wish-vault');
-const blowCandleButton = document.getElementById('blow-candle');
-const wishAction = document.getElementById('wish-action');
-const sparkleRoot = document.getElementById('birthday-sparkles');
-const wishCard = document.querySelector('.birthday-wish-card');
-let audioFallbackAttached = false;
-let autoplayRetryTimer = null;
-let autoplayRetryCount = 0;
+let celebStep = 1;
+let heartIntervalsStarted = false;
 
-function prepareBirthdayAudio() {
-  if (!birthdayAudio) return;
-  birthdayAudio.volume = 0.82;
-  birthdayAudio.loop = true;
-  birthdayAudio.autoplay = true;
-  birthdayAudio.preload = 'auto';
-  birthdayAudio.setAttribute('autoplay', '');
-  birthdayAudio.setAttribute('playsinline', '');
-}
+function transitionTo(pageId) {
+  document.querySelectorAll('.page').forEach((page) => page.classList.remove('active'));
 
-function syncMusicUi() {
-  const label = birthdayAudio && !birthdayAudio.paused ? 'Pause music' : 'Play birthday music';
-  document.querySelectorAll('.music-btn-inner').forEach((element) => {
-    element.textContent = label;
-  });
-}
+  const target = document.getElementById(pageId);
+  if (!target) return;
 
-function attemptPlayBirthdayAudio() {
-  if (!birthdayAudio) return;
-  prepareBirthdayAudio();
+  target.classList.add('active');
 
-  if (birthdayAudio.paused) {
-    if (birthdayAudio.currentTime === 0 || birthdayAudio.ended) {
-      birthdayAudio.currentTime = 0;
-    }
-    const promise = birthdayAudio.play();
-    if (promise && typeof promise.catch === 'function') {
-      promise.then(syncMusicUi).catch(() => {
-        syncMusicUi();
-        enableAudioAfterInteraction();
-        queueAutoplayRetry();
-      });
-      return;
-    }
+  if (pageId === 'curtain-page') {
+    window.setTimeout(() => {
+      document.getElementById('stage')?.classList.add('open');
+      startSparkles('message-card');
+    }, 1000);
   }
 
-  syncMusicUi();
 }
 
-function toggleBirthdayAudio() {
-  if (!birthdayAudio) return;
+function createHeart(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
 
-  if (birthdayAudio.paused) {
-    attemptPlayBirthdayAudio();
+  const heart = document.createElement('div');
+  heart.style.position = 'absolute';
+  heart.style.left = `${Math.random() * 100}vw`;
+  heart.style.bottom = '-10vh';
+  heart.style.color = 'var(--accent)';
+  heart.textContent = '❤️';
+  heart.style.fontSize = `${Math.random() * 20 + 10}px`;
+  heart.style.animation = `floatHeart ${Math.random() * 3 + 3}s linear forwards`;
+  container.appendChild(heart);
+  window.setTimeout(() => heart.remove(), 6000);
+}
+
+function startHeartParticles() {
+  if (heartIntervalsStarted) return;
+  heartIntervalsStarted = true;
+  window.setInterval(() => createHeart('particle-container'), 300);
+  window.setInterval(() => createHeart('slider-particles'), 400);
+}
+
+function nextStep(step) {
+  document.querySelectorAll('.step-content').forEach((content) => content.classList.remove('active'));
+  document.querySelectorAll('.dot').forEach((dot) => dot.classList.remove('active'));
+  document.getElementById(`step-${step}`)?.classList.add('active');
+  document.getElementById(`dot-${step}`)?.classList.add('active');
+}
+
+function finishSlider() {
+  transitionTo('celebration-page');
+}
+
+function celebFlow() {
+  const button = document.getElementById('celeb-master-btn');
+  const hint = document.getElementById('celeb-hint');
+  const page = document.getElementById('celebration-page');
+  const lights = document.getElementById('fairy-lights-container');
+
+  if (!button || !hint || !page || !lights) return;
+
+  if (celebStep === 1) {
+    page.classList.add('bright');
+    lights.style.opacity = '1';
+    hint.textContent = 'Music makes it better...';
+    button.textContent = 'Play Music';
+    celebStep = 2;
     return;
   }
 
-  birthdayAudio.pause();
-  syncMusicUi();
-}
-
-function renderMusicButton() {
-  if (!bdayMusicWrap) return;
-
-  bdayMusicWrap.innerHTML = '';
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'music-btn';
-  button.innerHTML = '<span class="music-btn-inner">Play birthday music</span>';
-  button.addEventListener('click', toggleBirthdayAudio);
-  bdayMusicWrap.appendChild(button);
-  syncMusicUi();
-}
-
-function enableAudioAfterInteraction() {
-  if (!birthdayAudio || audioFallbackAttached) return;
-  audioFallbackAttached = true;
-
-  const events = ['click', 'touchstart', 'keydown', 'pointerdown', 'pointerup'];
-  const unlockOnce = () => {
-    autoplayRetryCount = 0;
-    if (birthdayAudio.paused) {
-      birthdayAudio.play().then(syncMusicUi).catch(() => {});
-    }
-    events.forEach((eventName) => document.removeEventListener(eventName, unlockOnce, true));
-    audioFallbackAttached = false;
-  };
-
-  events.forEach((eventName) => document.addEventListener(eventName, unlockOnce, { once: true, capture: true }));
-}
-
-function queueAutoplayRetry() {
-  if (autoplayRetryTimer || autoplayRetryCount >= 10 || !birthdayAudio || !birthdayAudio.paused) return;
-
-  autoplayRetryTimer = window.setTimeout(() => {
-    autoplayRetryTimer = null;
-    autoplayRetryCount += 1;
-    attemptPlayBirthdayAudio();
-  }, 900);
-}
-
-function autoPlayBirthdayAudio() {
-  if (!birthdayAudio) return;
-  prepareBirthdayAudio();
-  birthdayAudio.currentTime = 0;
-
-  const promise = birthdayAudio.play();
-  if (promise !== undefined) {
-    promise.then(syncMusicUi).catch(() => {
-      syncMusicUi();
-      enableAudioAfterInteraction();
-      queueAutoplayRetry();
-    });
-  }
-}
-
-function createSparkleBurst() {
-  if (!sparkleRoot) return;
-
-  const colors = ['#ffdf8a', '#fff2c7', '#e50914', '#ffffff'];
-  const centerX = 50;
-  const centerY = 48;
-
-  for (let index = 0; index < 42; index += 1) {
-    const sparkle = document.createElement('span');
-    const angle = Math.random() * Math.PI * 2;
-    const distance = 90 + Math.random() * 230;
-    const size = 5 + Math.random() * 8;
-
-    sparkle.className = 'birthday-sparkle';
-    sparkle.style.setProperty('--x', `${centerX + (Math.random() * 10 - 5)}vw`);
-    sparkle.style.setProperty('--y', `${centerY + (Math.random() * 8 - 4)}vh`);
-    sparkle.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
-    sparkle.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
-    sparkle.style.setProperty('--size', `${size}px`);
-    sparkle.style.setProperty('--spark', colors[index % colors.length]);
-    sparkleRoot.appendChild(sparkle);
-
-    window.setTimeout(() => sparkle.remove(), 1500);
-  }
-}
-
-function blowOutCandle() {
-  if (!wishVault || wishVault.classList.contains('candle-out')) return;
-
-  wishVault.classList.add('candle-out');
-  wishCard?.classList.add('wish-complete');
-  if (wishAction) {
-    wishAction.textContent = 'Wish sent. Candle blown out.';
-  }
-  if (blowCandleButton) {
-    blowCandleButton.disabled = true;
-    blowCandleButton.setAttribute('aria-label', 'Birthday candle blown out');
+  if (celebStep === 2) {
+    document.getElementById('birthday-audio')?.play().catch(() => {});
+    hint.textContent = 'Let the colors fly!';
+    button.textContent = 'Fly Balloons';
+    celebStep = 3;
+    return;
   }
 
-  createSparkleBurst();
-  attemptPlayBirthdayAudio();
+  if (celebStep === 3) {
+    spawnBalloons(document.body);
+    hint.textContent = 'Almost there...';
+    button.textContent = 'Show The Message';
+    celebStep = 4;
+    return;
+  }
+
+  transitionTo('curtain-page');
+}
+
+function spawnBalloons(targetContainer) {
+  if (!targetContainer) return;
+
+  const colorGradients = [
+    ['#ff2d55', '#800020'],
+    ['#74b9ff', '#0984e3'],
+    ['#55efc4', '#00b894'],
+    ['#ffeaa7', '#fdcb6e'],
+    ['#a29bfe', '#6c5ce7'],
+    ['#ff9ff3', '#f368e0'],
+  ];
+
+  const interval = window.setInterval(() => {
+    const balloon = document.createElement('div');
+    const shine = document.createElement('div');
+    const gradient = colorGradients[Math.floor(Math.random() * colorGradients.length)];
+
+    balloon.classList.add('balloon');
+    shine.classList.add('balloon-shine');
+    balloon.style.left = `${Math.random() * 95}vw`;
+    balloon.style.background = `radial-gradient(circle at 70% 30%, ${gradient[0]}, ${gradient[1]})`;
+    balloon.style.boxShadow = 'inset -10px -10px 20px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.2)';
+    balloon.appendChild(shine);
+    targetContainer.appendChild(balloon);
+
+    window.setTimeout(() => balloon.remove(), 8000);
+  }, 400);
+
+  window.setTimeout(() => window.clearInterval(interval), 6000);
+}
+
+function startSparkles(targetId) {
+  const card = document.getElementById(targetId);
+  if (!card || card.dataset.sparklesStarted === 'true') return;
+
+  card.dataset.sparklesStarted = 'true';
+  window.setInterval(() => {
+    const sparkle = document.createElement('div');
+    sparkle.classList.add('sparkle-particle');
+    sparkle.style.width = sparkle.style.height = `${Math.random() * 4 + 2}px`;
+    sparkle.style.top = `${Math.random() * 100}%`;
+    sparkle.style.left = `${Math.random() * 100}%`;
+    card.appendChild(sparkle);
+    window.setTimeout(() => sparkle.remove(), 1000);
+  }, 50);
+}
+
+function initFairyLights() {
+  const container = document.getElementById('fairy-lights-container');
+  const path = document.getElementById('wire-path');
+  if (!container || !path) return;
+
+  const pathLength = path.getTotalLength();
+  const bulbCount = 25;
+
+  for (let index = 0; index <= bulbCount; index += 1) {
+    const distance = (index / bulbCount) * pathLength;
+    const point = path.getPointAtLength(distance);
+    const bulb = document.createElement('div');
+    bulb.classList.add('bulb-teardrop');
+    bulb.style.left = `${(point.x / 1000) * 100}%`;
+    bulb.style.top = `${point.y}px`;
+    bulb.style.setProperty('--d', `${0.5 + Math.random() * 2}s`);
+    container.appendChild(bulb);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  renderMusicButton();
-  autoPlayBirthdayAudio();
-  blowCandleButton?.addEventListener('click', blowOutCandle);
+  initFairyLights();
+  startHeartParticles();
 });
-window.addEventListener('pageshow', attemptPlayBirthdayAudio);
-window.addEventListener('focus', attemptPlayBirthdayAudio);
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) {
-    attemptPlayBirthdayAudio();
-  }
-});
-
-if (birthdayAudio) {
-  birthdayAudio.addEventListener('play', syncMusicUi);
-  birthdayAudio.addEventListener('pause', syncMusicUi);
-}

@@ -1,52 +1,489 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Operation K-19 Birthday Surprise</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <title>A Cinematic Birthday Surprise | For Someone Special</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,900&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --accent: #ff2d55;
+      --accent-glow: rgba(255, 45, 85, 0.5);
+      --gold: #d4af37;
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --bg-dark: #0a0a0b;
+      --royal-red: #6e0000;
+      --bulb-warm: #ffde6b;
+      --bulb-glow: rgba(255, 222, 107, 0.8);
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-dark);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      color: white;
+      perspective: 1000px;
+    }
+
+    .page {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      visibility: hidden;
+      opacity: 0;
+      transform: scale(1.1) translateZ(0);
+      transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .page.active {
+      visibility: visible;
+      opacity: 1;
+      transform: scale(1) translateZ(0);
+      z-index: 10;
+    }
+
+    @keyframes floatHeart {
+      0% {
+        transform: translateY(0) scale(0) rotate(0deg);
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 0.8;
+      }
+
+      100% {
+        transform: translateY(-110vh) scale(1.5) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes neonPulse {
+      0% {
+        box-shadow: 0 0 5px var(--accent), 0 0 10px var(--accent);
+      }
+
+      50% {
+        box-shadow: 0 0 20px var(--accent), 0 0 40px var(--accent);
+      }
+
+      100% {
+        box-shadow: 0 0 5px var(--accent), 0 0 10px var(--accent);
+      }
+    }
+
+    @keyframes shine {
+      to {
+        background-position: 200% center;
+      }
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes balloonFloat {
+      0% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+      }
+
+      100% {
+        transform: translateY(-130vh) translateX(0) rotate(0deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes stringWobble {
+      0%,
+      100% {
+        transform: rotate(-2deg);
+      }
+
+      50% {
+        transform: rotate(2deg);
+      }
+    }
+
+    @keyframes sparkleAnim {
+      0%,
+      100% {
+        opacity: 0;
+        transform: scale(0);
+      }
+
+      50% {
+        opacity: 0.8;
+        transform: scale(1);
+      }
+    }
+
+    #hero-page {
+      background: radial-gradient(circle at center, #1a0a0c 0%, #050505 100%);
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 8vw, 5.5rem);
+      font-weight: 900;
+      font-style: italic;
+      background: linear-gradient(to right, #fff, #ff2d55, #fff);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 4s linear infinite;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 3rem;
+    }
+
+    .btn-neon {
+      position: relative;
+      padding: 18px 45px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      background: transparent;
+      border: 1px solid var(--accent);
+      border-radius: 50px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      overflow: hidden;
+      transition: 0.5s;
+      animation: neonPulse 2s infinite;
+    }
+
+    .btn-neon:hover {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 50px var(--accent);
+    }
+
+    .slider-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      padding: 60px 40px;
+      border-radius: 40px;
+      border: 1px solid var(--glass-border);
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+    }
+
+    .step-content {
+      display: none;
+      min-height: 120px;
+      align-items: center;
+      justify-content: center;
+      animation: fadeInScale 0.8s forwards;
+    }
+
+    .step-content.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .step-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      margin-bottom: 30px;
+      color: #fff;
+      font-weight: 400;
+    }
+
+    .slider-dots {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transition: 0.4s;
+    }
+
+    .dot.active {
+      background: var(--accent);
+      transform: scale(1.5);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    #celebration-page {
+      background: #000;
+      transition: background 2s ease;
+    }
+
+    #celebration-page.bright {
+      background: radial-gradient(circle at center, #2a0a0e 0%, #0a0a0b 100%);
+    }
+
+    .fairy-lights-container {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 150px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 2s ease;
+      z-index: 5;
+    }
+
+    .wire-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: #222;
+      stroke-width: 2;
+    }
+
+    .bulb-teardrop {
+      position: absolute;
+      width: 16px;
+      height: 24px;
+      border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
+      background: #444;
+      transform-origin: top center;
+      transform: translate(-50%, 0);
+      box-shadow: none;
+      transition: background 1s, box-shadow 1s;
+    }
+
+    .bright .bulb-teardrop {
+      background: radial-gradient(circle at 30% 30%, #fff, var(--bulb-warm) 60%, #b8860b);
+      box-shadow: 0 0 15px var(--bulb-glow), 0 0 30px var(--bulb-glow);
+      animation: flicker var(--d) infinite alternate;
+    }
+
+    .balloon {
+      position: absolute;
+      bottom: -200px;
+      width: 60px;
+      height: 80px;
+      border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+      z-index: 100;
+      animation: balloonFloat 8s ease-in forwards;
+      display: flex;
+      justify-content: center;
+    }
+
+    .balloon::before {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      width: 10px;
+      height: 6px;
+      background: inherit;
+      border-radius: 50%;
+    }
+
+    .balloon::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      width: 1px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.3);
+      transform-origin: top;
+      animation: stringWobble 2s infinite ease-in-out;
+    }
+
+    .balloon-shine {
+      position: absolute;
+      top: 15%;
+      left: 15%;
+      width: 15px;
+      height: 25px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      filter: blur(2px);
+      transform: rotate(30deg);
+    }
+
+    .stage {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .curtain-panel {
+      position: absolute;
+      top: 0;
+      width: 51%;
+      height: 100%;
+      background: repeating-linear-gradient(to right, var(--royal-red), #4a0000 10%);
+      z-index: 20;
+      transition: transform 2.5s cubic-bezier(0.645, 0.045, 0.355, 1);
+      box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
+    }
+
+    .curtain-left {
+      left: 0;
+      border-right: 4px solid var(--gold);
+    }
+
+    .curtain-right {
+      right: 0;
+      border-left: 4px solid var(--gold);
+    }
+
+    .open .curtain-left {
+      transform: translateX(-100%) skewY(-5deg);
+    }
+
+    .open .curtain-right {
+      transform: translateX(100%) skewY(5deg);
+    }
+
+    .secret-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle, #1a1a1a, #000);
+    }
+
+    .message-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: clamp(20px, 5vw, 50px);
+      border-radius: 30px;
+      max-width: 700px;
+      width: 90%;
+      backdrop-filter: blur(10px);
+      position: relative;
+    }
+
+    .sparkle-particle {
+      position: absolute;
+      pointer-events: none;
+      background: white;
+      border-radius: 50%;
+      animation: sparkleAnim 2s infinite;
+    }
+  </style>
 </head>
+
 <body>
-  <audio id="birthday-audio" src="Happy Birthday (Piano Version).mp3" autoplay loop preload="auto" playsinline></audio>
-  <div id="bday-music-wrap"></div>
-  <div class="birthday-sparkles" id="birthday-sparkles" aria-hidden="true"></div>
-  <main class="surprise-box birthday-wish-card">
-    <div class="surprise-classified">Birthday wish unlocked</div>
-    <div class="surprise-title">Happy Birthday,<br>Kruthiii!</div>
-    <div class="surprise-msg">
-      <p>
-        Dear <span class="hl">Kruthiii</span>, happy birthday to the elder-sis energy,
-        kid-at-heart chaos, and family kind of person who makes ordinary days feel safer,
-        funnier, and brighter.
-      </p>
-    </div>
+  <section id="hero-page" class="page active">
+    <div id="particle-container"
+      style="position: absolute; width: 100%; height: 100%; top:0; left:0; pointer-events: none;"></div>
+    <h1 class="hero-title">Happy Birthday, Kruthiiii</h1>
+    <p class="hero-sub">A Cinematic Journey Created Just For You</p>
+    <button class="btn-neon" onclick="transitionTo('message-slider-page')">Open Your Gift</button>
+  </section>
 
-    <section class="wish-vault" id="wish-vault" aria-labelledby="wish-title">
-      <div class="wish-instruction" id="wish-title">Close your eyes, make a wish first, then blow out the candle.</div>
-      <button class="cake-stage" id="blow-candle" type="button" aria-label="Blow out the birthday candle">
-        <span class="cake-plate" aria-hidden="true"></span>
-        <span class="cake-body" aria-hidden="true">
-          <span class="cake-icing"></span>
-          <span class="cake-layer"></span>
-        </span>
-        <span class="candle" aria-hidden="true">
-          <span class="wick"></span>
-          <span class="flame"></span>
-          <span class="smoke smoke-one"></span>
-          <span class="smoke smoke-two"></span>
-        </span>
-      </button>
-      <div class="wish-action" id="wish-action">Tap the candle when your wish is ready.</div>
-      <div class="wish-reveal" id="wish-reveal" aria-live="polite">May this year bring you soft days, loud laughs, brave choices, and every tiny dream you secretly wished for.</div>
-    </section>
-
-    <div class="birthday-blessing">
-      You are loved more than one message can hold.
+  <section id="message-slider-page" class="page">
+    <div id="slider-particles"
+      style="position: absolute; width: 100%; height: 100%; top:0; left:0; pointer-events: none;"></div>
+    <div class="slider-card">
+      <div id="step-1" class="step-content active">
+        <h2 class="step-text">It's Your Special Day</h2>
+        <button class="btn-neon" onclick="nextStep(2)">Next</button>
+      </div>
+      <div id="step-2" class="step-content">
+        <h2 class="step-text">Have a look at it Madam Jii</h2>
+        <button class="btn-neon" onclick="nextStep(3)">Next</button>
+      </div>
+      <div id="step-3" class="step-content">
+        <h2 class="step-text">Ready for your surprise?</h2>
+        <button class="btn-neon" onclick="finishSlider()">Let's Go</button>
+      </div>
+      <div class="slider-dots">
+        <div id="dot-1" class="dot active"></div>
+        <div id="dot-2" class="dot"></div>
+        <div id="dot-3" class="dot"></div>
+      </div>
     </div>
-  </main>
+  </section>
+
+  <section id="celebration-page" class="page">
+    <div class="fairy-lights-container" id="fairy-lights-container">
+      <svg class="wire-svg" preserveAspectRatio="none" viewBox="0 0 1000 150">
+        <path id="wire-path" d="M0,20 Q100,60 200,20 T400,20 T600,20 T800,20 T1000,20" />
+      </svg>
+    </div>
+    <div class="glass-container" style="background: transparent; border: none; box-shadow: none;">
+      <h2 id="celeb-hint" style="font-size: 1.5rem; margin-bottom: 30px; letter-spacing: 2px;">The Stage is Set...</h2>
+      <button id="celeb-master-btn" class="btn-neon" onclick="celebFlow()">Turn On Lights</button>
+    </div>
+  </section>
+
+  <section id="curtain-page" class="page" style="padding: 0;">
+    <div class="stage" id="stage">
+      <div class="curtain-panel curtain-left"></div>
+      <div class="curtain-panel curtain-right"></div>
+      <div class="secret-content">
+        <div class="message-card" id="message-card">
+          <h2
+            style="font-family: 'Dancing Script'; font-size: clamp(2rem, 5vw, 3.5rem); color: var(--accent); margin-bottom: 20px;">
+            My Dearest AKKA,</h2>
+          <p style="font-size: clamp(1rem, 2vw, 1.2rem); line-height: 1.8; color: rgba(255,255,255,0.8);">
+            Today isn't just a date on the calendar; it's a celebration of the light you bring into my life.
+            Every moment with you is like a frame from a beautiful movie, and I'm so lucky to be your co-star.
+            May this year be filled with as much magic as you give to everyone around you.
+          </p>
+          <button class="btn-neon" style="margin-top: 40px; animation: none;" onclick="location.reload()">Replay The Magic</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <audio id="birthday-audio" src="Happy Birthday (Piano Version).mp3" loop preload="auto"></audio>
   <script src="surprise.js" defer></script>
 </body>
+
 </html>
