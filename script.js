@@ -60,7 +60,8 @@ function setCountdownHeader(text) {
 function getNextBirthday() {
   const now = new Date();
   const birthday = new Date(now.getFullYear(), 4, 26, 0, 0, 0);
-  if (now > birthday) {
+  const birthdayEnds = new Date(now.getFullYear(), 4, 27, 0, 0, 0);
+  if (now >= birthdayEnds) {
     birthday.setFullYear(birthday.getFullYear() + 1);
   }
   return birthday;

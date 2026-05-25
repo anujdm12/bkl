@@ -1,4 +1,5 @@
 let celebStep = 1;
+let galleryEffectsStarted = false;
 let heartIntervalsStarted = false;
 
 function transitionTo(pageId) {
@@ -16,6 +17,9 @@ function transitionTo(pageId) {
     }, 1000);
   }
 
+  if (pageId === 'gallery-page') {
+    startGalleryEffects();
+  }
 }
 
 function createHeart(containerId) {
@@ -117,6 +121,32 @@ function spawnBalloons(targetContainer) {
   }, 400);
 
   window.setTimeout(() => window.clearInterval(interval), 6000);
+}
+
+function startGalleryEffects() {
+  if (galleryEffectsStarted) return;
+  galleryEffectsStarted = true;
+
+  const container = document.getElementById('gallery-bg-elements');
+  if (!container) return;
+
+  window.setInterval(() => {
+    if (document.getElementById('gallery-page')?.classList.contains('active')) {
+      spawnBalloons(container);
+    }
+  }, 8000);
+
+  window.setInterval(() => {
+    if (!document.getElementById('gallery-page')?.classList.contains('active')) return;
+
+    const sparkle = document.createElement('div');
+    sparkle.classList.add('gallery-sparkle');
+    sparkle.style.width = sparkle.style.height = `${Math.random() * 6 + 2}px`;
+    sparkle.style.top = `${Math.random() * 100}%`;
+    sparkle.style.left = `${Math.random() * 100}%`;
+    container.appendChild(sparkle);
+    window.setTimeout(() => sparkle.remove(), 2000);
+  }, 200);
 }
 
 function startSparkles(targetId) {
